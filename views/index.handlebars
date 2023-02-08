@@ -1,0 +1,56 @@
+<style>
+    .block {
+        display: none;
+    }
+
+    .teste-div {
+        height: 300px;
+        width: 100%;
+        background-color: lightblue;
+    }
+</style>
+
+<form id="formulario">
+  <input type="text" name="url">
+  <input type="text" name="name">
+  <input type="text" name="type">
+  <button type="submit">Enviar</button>
+</form>
+
+<div class="teste-div block"></div>
+
+<script>
+ 
+    class creatDownload {
+        constructor(url, name, quality, type) {
+            this.url = url;
+            this.name = name;
+            this.quality = quality;
+            this.type = type
+        }
+
+        init() {
+            console.log(`${this.url} <> ${this.name}`)
+        }
+    }
+
+    $(document).ready(() => {
+        $('#formulario').submit(function (event) {
+            event.preventDefault();
+                $.ajax({
+                    url: '/api/dados',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: (data) =>  {
+                        console.log(data)
+                        const createApp = new creatDownload(data.data[1].video_url, data.data[1].title)
+                        createApp.init()
+                }
+            });
+        });
+    });
+
+
+    
+
+</script> 
