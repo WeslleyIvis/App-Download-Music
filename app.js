@@ -21,8 +21,10 @@ app.use(bodyParser.json());
 app.engine('handlebars', handlebars.engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 
+let data = [];
+
 app.get('/', (req, res) => {
-  const { url } = req.query;
+  const url = req.query['https://www.youtube.com/watch?v'];
   if (url) {
     res.header('Content-Disposition', 'Attachmentt; filename="videu.mp4"');
     ytdl(url).pipe(res);
@@ -35,16 +37,15 @@ app.get('/index', (req, res) => {
   res.render('index');
 });
 
-app.post('/api/dados', (req, res) => {
-  const { url, name, type } = req.body;
+app.post('/api/ytdl', (req, res) => {
+  const { url } = req.body;
 
   if (ytdl.validateURL(url)) {
     async function ytInfo() {
-      await ytdl
-        .getBasicInfo(url)
-        .then((info) =>
-          res.status(200).json({ data: [info.formats, info.videoDetails] }),
-        );
+      await ytdl.getBasicInfo(url).then((info) => {
+        data = [info.formats, info.videoDetails];
+        res.status(200).json({ data: [info.formats, info.videoDetails] });
+      });
     }
     ytInfo();
   } else {
@@ -52,17 +53,15 @@ app.post('/api/dados', (req, res) => {
   }
 });
 
-app.get('/download/:name/:type', (req, res) => {
-  const { name, type } = req.params;
-  const url = req.query['https://www.youtube.com/watch?v'];
-  if (url) {
-    res.header(
-      'Content-Disposition',
-      `Attachmentt; filename="${name}.${type}"`,
-    );
-    ytdl(url).pipe(res);
+app.get('/dl', (req, res) => {
+  const stream = ytdl(data[1].video_url, { filter: 'audioandvideo' });
+
+  res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
+
+  if (ytdl.validateURL(data[1].video_url)) {
+    stream.pipe(res);
   } else {
-    res.send('Error 404: Video not found');
+    res.send('error');
   }
 });
 

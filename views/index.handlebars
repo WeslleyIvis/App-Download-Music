@@ -1,36 +1,65 @@
-<style>
-    .block {
-        display: none;
-    }
-
-    .teste-div {
-        height: 300px;
-        width: 100%;
-        background-color: lightblue;
-    }
-</style>
 
 <form id="formulario">
   <input type="text" name="url">
-  <input type="text" name="name">
-  <input type="text" name="type">
   <button type="submit">Enviar</button>
 </form>
 
-<div class="teste-div block"></div>
+<div id="content"></div>    
+
 
 <script>
  
     class creatDownload {
-        constructor(url, name, quality, type) {
-            this.url = url;
-            this.name = name;
-            this.quality = quality;
-            this.type = type
+        constructor(data, boxContent) {
+            this.data = data;
+            this.boxContent = boxContent[0];
+            this.url = this.data[1].video_url
+            this.title = this.data[1].title
+            this.embedVideo = this.data[1].embed
         }
 
+        creatContent(container) {
+            // Limpa o conteúdo quando receber uma nova requisição
+            if(container.childNodes.length) {
+                container.innerHTML = ''
+            }
+
+            this.video(this.embedVideo, this.boxContent)
+            this.download()
+        }
+
+        video(embedConfig, container) {
+            const iframe = document.createElement('iframe')
+            iframe.setAttribute('width', embedConfig.width)
+            iframe.setAttribute('height', embedConfig.height)
+            iframe.setAttribute('src', embedConfig.iframeUrl)
+            iframe.setAttribute('frameborder', 0)
+
+            container.appendChild(iframe)
+        }
+
+        download() {
+            const button = document.createElement('button')
+            button.innerText = 'Download';
+            button.addEventListener('click', async () => {               
+                await fetch('http://localhost:3000/dl').then(r => {
+                    if (r.ok) return r.blob();
+                }).then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `${this.title}.mp4`;
+                    document.body.appendChild(a)
+                    a.click();
+                    URL.revokeObjectURL(url);
+                })
+            })
+            this.boxContent.appendChild(button)          
+        }
+        
         init() {
-            console.log(`${this.url} <> ${this.name}`)
+            this.creatContent(this.boxContent)  
         }
     }
 
@@ -38,12 +67,12 @@
         $('#formulario').submit(function (event) {
             event.preventDefault();
                 $.ajax({
-                    url: '/api/dados',
+                    url: '/api/ytdl',
                     type: 'POST',
                     data: $(this).serialize(),
                     success: (data) =>  {
                         console.log(data)
-                        const createApp = new creatDownload(data.data[1].video_url, data.data[1].title)
+                        const createApp = new creatDownload(data.data, $('#content'))
                         createApp.init()
                 }
             });
