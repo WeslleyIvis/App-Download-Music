@@ -4,10 +4,12 @@ const bodyParser = require('body-parser');
 var cors = require('cors');
 const express = require('express');
 const app = express();
+
+// Open the page
+const open = require('open');
 const port = 3000;
 
 // cors
-
 app.use(cors());
 
 // create application/x-www-form-urlencoded parser
@@ -17,11 +19,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // config - Template Egnine
-
 app.engine('handlebars', handlebars.engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 
 let data = [];
+open('http://localhost:3000/index');
 
 app.get('/', (req, res) => {
   const url = req.query['https://www.youtube.com/watch?v'];
@@ -38,13 +40,15 @@ app.get('/index', (req, res) => {
 });
 
 app.post('/api/ytdl', (req, res) => {
-  const { url } = req.body;
+  const { url, types } = req.body;
 
   if (ytdl.validateURL(url)) {
     async function ytInfo() {
       await ytdl.getBasicInfo(url).then((info) => {
-        data = [info.formats, info.videoDetails];
-        res.status(200).json({ data: [info.formats, info.videoDetails] });
+        data = [info.formats, info.videoDetails, types];
+        res
+          .status(200)
+          .json({ data: [info.formats, info.videoDetails, types] });
       });
     }
     ytInfo();
@@ -53,17 +57,35 @@ app.post('/api/ytdl', (req, res) => {
   }
 });
 
-app.get('/dl', (req, res) => {
-  const stream = ytdl(data[1].video_url, { filter: 'audioandvideo' });
+app.get(
+  '/dl',
+  (req, res, next) => {
+    let type = '';
 
-  res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
+    switch (data[2]) {
+      case 'mp3':
+        type = 'audioonly';
+        break;
+      case 'mp4':
+        type = 'audioandvideo';
+        break;
+    }
 
-  if (ytdl.validateURL(data[1].video_url)) {
-    stream.pipe(res);
-  } else {
-    res.send('error');
-  }
-});
+    const stream = ytdl(data[1].video_url, { filter: type });
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${data[1].title}.${data[2]}"`,
+    );
+
+    if (ytdl.validateURL(data[1].video_url)) {
+      stream.pipe(res);
+      next();
+    } else {
+      res.send('error');
+    }
+  },
+  (req, res) => {},
+);
 
 app.listen(port, (err) => {
   if (err) console.log(err);

@@ -1,11 +1,16 @@
 
-<form id="formulario">
-  <input type="text" name="url">
-  <button type="submit">Enviar</button>
-</form>
+<main class="content">
+    <form id="formulario">
+        <input type="text" name="url" id="url" placeholder="Youtube URL" required>
+        <select name="types" id="type">
+            <option value="mp3">MP3</option>
+            <option value="mp4">MP4</option>
+        </select>
+    <button type="submit">FIND</button>
+    </form>
 
-<div id="content"></div>    
-
+    <div id="content"></div>    
+</main>
 
 <script>
  
@@ -25,22 +30,22 @@
             }
 
             this.video(this.embedVideo, this.boxContent)
+            this.descrition();
             this.download()
         }
 
         video(embedConfig, container) {
-            const iframe = document.createElement('iframe')
-            iframe.setAttribute('width', embedConfig.width)
-            iframe.setAttribute('height', embedConfig.height)
-            iframe.setAttribute('src', embedConfig.iframeUrl)
-            iframe.setAttribute('frameborder', 0)
-
-            container.appendChild(iframe)
+            const iframe = document.createElement('iframe');
+            iframe.src = embedConfig.iframeUrl;
+            iframe.classList.add('yt-iframe');
+            iframe.setAttribute('frameborder', 0);
+            container.appendChild(iframe);
         }
 
         download() {
             const button = document.createElement('button')
             button.innerText = 'Download';
+            button.classList.add('download')
             button.addEventListener('click', async () => {               
                 await fetch('http://localhost:3000/dl').then(r => {
                     if (r.ok) return r.blob();
@@ -49,15 +54,23 @@
                     const a = document.createElement('a');
                     a.style.display = 'none';
                     a.href = url;
-                    a.download = `${this.title}.mp4`;
+                    a.download = `${this.title}.${this.data[2]}`;
                     document.body.appendChild(a)
                     a.click();
                     URL.revokeObjectURL(url);
+                    this.boxContent.innerHTML = ''
                 })
             })
             this.boxContent.appendChild(button)          
         }
-        
+
+        descrition() {
+            const title = document.createElement('span');
+            title.innerText = this.title;
+            title.classList.add('title')
+            this.boxContent.appendChild(title)
+        }
+
         init() {
             this.creatContent(this.boxContent)  
         }
