@@ -1,6 +1,6 @@
 
 <main class="content">
-    <form id="formulario">
+    <form id="formulario" enctype="application/x-www-form-urlencoded">
         <input type="text" name="url" id="url" placeholder="Youtube URL" required>
         <select name="types" id="type">
             <option value="mp3">MP3</option>
@@ -13,7 +13,6 @@
 </main>
 
 <script>
- 
     class creatDownload {
         constructor(data, boxContent) {
             this.data = data;
@@ -21,6 +20,7 @@
             this.url = this.data[1].video_url
             this.title = this.data[1].title
             this.embedVideo = this.data[1].embed
+            
         }
 
         creatContent(container) {
@@ -71,7 +71,7 @@
             this.boxContent.appendChild(title)
         }
 
-        init() {
+        createComponent() {
             this.creatContent(this.boxContent)  
         }
     }
@@ -86,13 +86,28 @@
                     success: (data) =>  {
                         console.log(data)
                         const createApp = new creatDownload(data.data, $('#content'))
-                        createApp.init()
+                        createApp.createComponent()
                 }
             });
         });
     });
 
+    const form = document.getElementById('formulario')
 
-    
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const data = new FormData(form)
+
+        console.log(data)
+        
+        await fetch('/testar', {
+            body: data,
+            method: 'POST',
+            header: {
+                'Content-type': 'application/x-www-form-urlencoded'
+            }
+        }).then(r => console.log(r)).catch(err => console.log(err))
+    })
+
 
 </script> 

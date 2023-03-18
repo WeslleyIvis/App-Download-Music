@@ -13,7 +13,7 @@ const port = 3000;
 app.use(cors());
 
 // create application/x-www-form-urlencoded parser
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // create application/json parser
 app.use(bodyParser.json());
@@ -23,20 +23,31 @@ app.engine('handlebars', handlebars.engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 
 let data = [];
-open('http://localhost:3000/index');
+//open('http://localhost:3000/index');
 
-app.get('/', (req, res) => {
-  const url = req.query['https://www.youtube.com/watch?v'];
-  if (url) {
-    res.header('Content-Disposition', 'Attachmentt; filename="videu.mp4"');
-    ytdl(url).pipe(res);
-  } else {
-    res.send('Not found');
-  }
-});
+// app.get('/', (req, res) => {
+//   const url = req.query['https://www.youtube.com/watch?v'];
+//   if (url) {
+//     res.header('Content-Disposition', 'Attachmentt; filename="videu.mp4"');
+//     ytdl(url).pipe(res);
+//   } else {
+//     res.send('Not found');
+//   }
+// });
 
+//**  Inicia o HTML  **//
 app.get('/index', (req, res) => {
   res.render('index');
+});
+
+app.post('/testar', (req, res) => {
+  const { url, types } = req.body;
+
+  console.log('url: ' + url);
+  console.log('types: ' + types);
+  console.log(req.body);
+
+  res.send('?');
 });
 
 app.post('/api/ytdl', (req, res) => {
