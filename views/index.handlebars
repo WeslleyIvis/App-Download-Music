@@ -92,22 +92,4 @@
         });
     });
 
-    const form = document.getElementById('formulario')
-
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const data = new FormData(form)
-
-        console.log(data)
-        
-        await fetch('/testar', {
-            body: data,
-            method: 'POST',
-            header: {
-                'Content-type': 'application/x-www-form-urlencoded'
-            }
-        }).then(r => console.log(r)).catch(err => console.log(err))
-    })
-
-
 </script> 

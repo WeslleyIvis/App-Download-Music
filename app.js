@@ -7,7 +7,7 @@ const app = express();
 
 // Open the page
 const open = require('open');
-const port = 3000;
+const port = 5000;
 
 // cors
 app.use(cors());
@@ -23,7 +23,7 @@ app.engine('handlebars', handlebars.engine({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 
 let data = [];
-//open('http://localhost:3000/index');
+open(`http://localhost:${port}/index`);
 
 // app.get('/', (req, res) => {
 //   const url = req.query['https://www.youtube.com/watch?v'];
@@ -38,16 +38,6 @@ let data = [];
 //**  Inicia o HTML  **//
 app.get('/index', (req, res) => {
   res.render('index');
-});
-
-app.post('/testar', (req, res) => {
-  const { url, types } = req.body;
-
-  console.log('url: ' + url);
-  console.log('types: ' + types);
-  console.log(req.body);
-
-  res.send('?');
 });
 
 app.post('/api/ytdl', (req, res) => {
