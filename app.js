@@ -25,16 +25,6 @@ app.set('view engine', 'handlebars');
 let data = [];
 open(`http://localhost:${port}/index`);
 
-// app.get('/', (req, res) => {
-//   const url = req.query['https://www.youtube.com/watch?v'];
-//   if (url) {
-//     res.header('Content-Disposition', 'Attachmentt; filename="videu.mp4"');
-//     ytdl(url).pipe(res);
-//   } else {
-//     res.send('Not found');
-//   }
-// });
-
 //**  Inicia o HTML  **//
 app.get('/index', (req, res) => {
   res.render('index');
